@@ -1,12 +1,12 @@
 # C++那些事儿
 
-## inline关键字
+## <font color=yellow>inline关键字</font>
 
 `inline`要起作用的话应该和函数的定义放在一起，`inline`是一种用于实现的关键字，而不是用于函数的声明。
 
 虚函数可以是内联函数，但是当虚函数表现为多态性的时候不能内联。**内联是在编译时建议编译器内联，而多态函数的多态性在运行期，编译器在编译时无法知道运行期间该调用那个代码，所以当虚函数表现为多态性时不可以内联。**
 
-## sizeof关键字
+## <font color=yellow>sizeof关键字</font>
 
 * 空类的大小为1
 * 一个类中，虚函数本身、成员函数（包括静态和非静态）和静态数据成员都不占用类对象的存储空间。
@@ -14,7 +14,7 @@
 * 普通继承，派生类继承了所有基类的函数与成员，要按照字节对齐来计算大小。
 * 虚函数继承，不管是单继承还是多继承，都是继承了基类的`vptr`
 
-## vtable和vptr
+## <font color=yellow>vtable和vptr</font>
 
 ### 虚表
 
@@ -82,9 +82,236 @@ Derived::fun(), x = 10
 * 虚函数可以是内联函数，内联是可以修饰析构函数的。但是当虚函数表现为多态性的时候不能内联。
 * 内联是在编译时编译器建议内联，而虚函数的动态绑定在运行时，编译器无法知道运行期调用哪段代码，所以无法对表现出多态性的虚函数进行内联。
 
+## <font color=yellow>volatile关键字</font>
+
+* 使用volatile关键字通知编译器不要对被声明的变量优化，每次对该变量进行读写操作时都直接从内存中读取。
+* 多线程应用中被多个任务共享的变量。当多个线程共享一个变量时，通过对此变量声明`volatile`，防止运行时将此变量放在寄存器而未写入内存，切换线程后，其他线程不能及时同步到变量的修改。所以`volatile`的意思是每次访问变量时直接从内存中取。
+
+## <font color=yellow>union关键字</font>
+
+union是一种节省空间的特殊的类，一个union可以有多个数据成员，但是在任意时刻只有一个数据成员可以有值。当某个成员被赋值时其他成员变为未定义状态。union对象有如下特点：
+
+* 默认访问控制符为public
+* 可以含有构造函数和析构函数
+* 不能含有引用其他类型的成员
+* 不能继承自其他类，不能作为基类
+* 不能含有虚函数
+
+## <font color=yellow>explicit关键字</font>
+
+`explicit`关键字的作用是使类的构造函数显示调用，避免隐式类型转换。示例：
+
+```c++
+#include <iostream>
+using namespace std;
+
+class A
+{
+public:
+    explicit A(int i = 1) : m(i)
+    {}
+
+    int getMa()
+    {
+        return m;
+    }
+private:
+    int m;
+};
+
+int main()
+{
+    A a;
+    cout << "a.m before a=10: " << a.getMa() << endl;
+    a = 2;	// 隐式类型转换
+    cout << "a.m after  a=10: " << a.getMa() << endl;
+
+    return 0;
+}
+```
+
+**把构造函数之前添加`explicit`关键字，禁止隐式转换**
+
+## <font color=yellow>友元</font>
+
+* 友元函数：普通函数访问一个类的私有或保护成员
+* 友元类：类A的成员函数访问类B的私有或保护成员。
+
+### 友元函数
+
+* 在类的任何地方声明，定义则在类的外部。
+
+```c++
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+public:
+    A(int _a):a(_a){};
+    friend int geta(A &ca);  ///< 友元函数
+private:
+    int a;
+};
+
+int geta(A &ca) 
+{
+    return ca.a;
+}
+
+int main()
+{
+    A a(3);    
+    cout<<geta(a)<<endl;
+
+    return 0;
+}
+```
+
+### 友元类
+
+友元类的声明在该类的声明中，实现在类外。
+
+```c++
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+public:
+    A(int _a):a(_a){};
+    friend class B;
+private:
+    int a;
+};
+
+class B
+{
+public:
+    int getb(A ca) {
+        return  ca.a; 
+    };
+};
+
+int main() 
+{
+    A a(3);
+    B b;
+    cout<<b.getb(a)<<endl;
+    return 0;
+}
+```
+
+**<font color=red>注意</font>**
+
+* **友元关系没有继承性，假如类B是类A的友元，类C继承与类A，那么友元B不能直接访问类C的私有或保护成员。**
+* **友元关系没有传递性，假如类类B是类A的友元，类C是类B的友元，那么友元类C不能直接访问类A的私有或保护成员。**
+
+## <font color=yellow>C++派生类对基类的三种访问规则</font>
+
+### 私有继承的访问
+
+**当类的继承方式为私有继承时，基类的public成员和protected成员被继承后成为派生类的private成员，派生类的其它成员可以直接访问它们，但是在类的外部通过派生类的对象无法访问。** **<font color=red>基类的private成员在私有派生类中是不可直接访问的，所以无论是派生类的成员还是通过派生类的对象，都无法直接访问从基类继承来的private成员，但是可以通过基类提供的public成员函数间接访问。</font>**私有继承的访问规则总结如下：
+
+| 基类成员 | private成员 | public成员 | protected成员 |
+| -------- | ----------- | ---------- | ------------- |
+| 内部访问 | 不可访问    | 可访问     | 可访问        |
+| 对象访问 | 不可访问    | 不可访问   | 不可访问      |
+
+### 公有继承的访问规则
+
+当类的继承方式为公有继承时，基类的public成员和protected成员被继承到派生类中仍作为派生类的public成员和protected成员，派生类的其它成员可以直接访问它们。但是，类的外部使用者只能通过派生类的对象访问继承来的public成员。基类的private成员在私有派生类中是不可直接访问的，所以无论是派生类成员还是派生类的对象，都无法直接访问从基类继承来的private成员，但是可以通过基类提供的public成员函数直接访问它们。公有继承的访问规则总结如下：
+
+| 基类成员 | private成员 | public成员 | protected成员 |
+| -------- | ----------- | ---------- | ------------- |
+| 内部访问 | 不可访问    | 可访问     | 可访问        |
+| 对象访问 | 不可访问    | 可访问     | 不可访问      |
+
+### 保护继承的访问规则
+
+ 当类的继承方式为保护继承时，基类的public成员和protected成员被继承到派生类中都作为派生类的protected成员，派生类的其它成员可以直接访问它们，但是类的外部使用者不能通过派生类的对象访问它们。基类的private成员在私有派生类中是不可直接访问的，所以无论是派生类成员还是通过派生类的对象，都无法直接访问基类中的private成员。保护继承的访问规则总结如下：
+
+| 基类成员 | private成员 | public成员 | protected成员 |
+| -------- | ----------- | ---------- | ------------- |
+| 内部访问 | 不可访问    | 可访问     | 可访问        |
+| 对象访问 | 不可访问    | 不可访问   | 不可访问      |
+
+## <font color=yellow>哈希冲突以及哈希冲突的解决方法</font>
+
+## <font color=yellow>构造函数和默认构造函数</font>
+
+**<font color=red>默认构造函数在被需要的时候被编译器产生出来。</font>**
+
+编译器为程序构建默认构造函数是因为编译器需要它，而不是因为程序需要它。如果一个类没有显示定义任何构造函数，或者定义的构造函数没有任何参数，或者定义的构造函数的所有参数都有默认值，此时创建类对象的时候不需要给出成员变量的值，编译器会使用默认构造函数创建类对象。
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Foo{
+public:
+    // Foo() {cout << "default constructor" << endl;}	// 默认构造函数
+    Foo(int v = 1) : val(v), next(nullptr) {cout << "default constructor" << endl;}	// 默认构造函数
+    int val;
+    Foo *next;
+};
+
+void fun() {
+    Foo foo;
+    if (foo.val || foo.next) {
+        cout << "hello" << endl;
+    }
+}
+
+int main() {
+    fun();
+    return 0;
+}
+```
+
+* 默认构造函数是被编译器需要的，那么编译器什么时候需要它呢？在下列四种情况下编译器会生成默认构造函数：
+  1. `class` 内包含有 `default constructor` 的 `member object`，合成 `default constructor` 为了调用 `member object `的` default constructor`。
+  2. `class` 继承自含有 `default constructor `的基类，合成 `default constructor `为了调用基类的 `default constructor `
+  3. 带有虚函数的 `class` ，合成 `default constructor `主要为了初始化`vptr`（虚函数表指针）。
+  4. `class `有一个及以上的虚基类，合成 `default constructor `主要为了初始化虚基类指针。
+* 当满足上面的条件时，编译器会对`contructor`进行拓展，拓展规则如下：
+  1. 当 `class` 没有定义 `constructor` ，编译器会合成 `default constructor` ，并加入编译器需要的操作，可能包括调用 `member object` 的 `default constructor` ，调用基类的 `default constructor` ，初始化虚函数表指针及虚基类指针。
+  2. 当 `class` 已经定义了一个或多个 `constructor` 时，编译器不会再去合成 `default constructor` ，但会扩展所有 `constructor`加入编译器需要的操作。
+
+当一个类已经定义了构造函数时，编译器不会合成默认构造函数：
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Foo{
+public:
+    // Foo() {cout << "default constructor" << endl;}
+    Foo(int v) : val(v), next(nullptr) {cout << "constructor" << endl;}
+    int val;
+    Foo *next;
+};
+
+void fun() {
+    Foo foo;
+    if (foo.val || foo.next) {
+        cout << "hello" << endl;
+    }
+}
+
+int main() {
+    fun();
+    return 0;
+}
+```
+
+上面代码编译报错`no matching function for call to 'Foo::Foo()'`，因为已经有了自己定义的构造函数，所有不会合成默认构造函数。
+
 # 现代C++实战30讲
 
-## 堆、栈、RAII：C++如何管理资源
+## <font color=yellow>堆、栈、RAII：C++如何管理资源</font>
 
 * 不管是否发生异常，类的析构函数都会得到执行
 * 当对象很大，或者对象的大小在编译时不能确定，这些情况下对象不能存储在堆上。
@@ -111,7 +338,7 @@ int main()
 
 由于系统的资源不具有自动释放的功能，而C++中的类具有自动调用析构函数的功能。**如果把资源用类进行封装起来，对资源操作都封装在类的内部，在析构函数中进行释放资源。当定义的局部变量的声明结束时，它的析构函数就会自动的被调用。因此，不需要程序员显式地调用释放资源的操作。**
 
-## 自己动手，实现C++的智能指针
+## <font color=yellow>自己动手，实现C++的智能指针</font>
 
 根据C++规则，如果提供了移动构造函数而没有提供拷贝构造函数，那么后者将被自动禁用。
 
@@ -122,7 +349,7 @@ smart_prt(smart_ptr&& other);	// 移动构造函数的声明
 
 # 基础知识
 
-## 左值和右值
+## <font color=yellow>左值和右值</font>
 
 * 左值是有标识符，可以取地址的表达式，可以在作用域里长期存在。
 
