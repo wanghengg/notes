@@ -1,4 +1,4 @@
-# C++那些事儿
+# 基础知识
 
 ## <font color=yellow>inline关键字</font>
 
@@ -309,46 +309,6 @@ int main() {
 
 上面代码编译报错`no matching function for call to 'Foo::Foo()'`，因为已经有了自己定义的构造函数，所有不会合成默认构造函数。
 
-# 现代C++实战30讲
-
-## <font color=yellow>堆、栈、RAII：C++如何管理资源</font>
-
-* 不管是否发生异常，类的析构函数都会得到执行
-* 当对象很大，或者对象的大小在编译时不能确定，这些情况下对象不能存储在堆上。
-
-系统资源有限，使用系统资源时必须遵循一个步骤：1）申请资源；2）使用资源；3）释放资源
-
-```c++
-#include <iostream> 
-
-using namespace std; 
-
-int main() 
-
-{ 
-    int *testArray = new int [10]; 
-    // Here, you can use the array 
-    delete [] testArray; 
-    testArray = NULL ; 
-    return 0; 
-}
-```
-
-如果程序很复杂的时候，需要为所有的new分配的内存delete，导致效率低下，代码臃肿。**更重要的是某一个操作发生了异常而导致释放资源的语句没有被调用，就会导致内存泄露，这是就可以使用RAII（Resource Acquisition Is Initialization）机制**
-
-由于系统的资源不具有自动释放的功能，而C++中的类具有自动调用析构函数的功能。**如果把资源用类进行封装起来，对资源操作都封装在类的内部，在析构函数中进行释放资源。当定义的局部变量的声明结束时，它的析构函数就会自动的被调用。因此，不需要程序员显式地调用释放资源的操作。**
-
-## <font color=yellow>自己动手，实现C++的智能指针</font>
-
-根据C++规则，如果提供了移动构造函数而没有提供拷贝构造函数，那么后者将被自动禁用。
-
-```c++
-smart_ptr(smart_ptr& other);	// 拷贝构造函数的声明
-smart_prt(smart_ptr&& other);	// 移动构造函数的声明
-```
-
-# 基础知识
-
 ## <font color=yellow>左值和右值</font>
 
 * 左值是有标识符，可以取地址的表达式，可以在作用域里长期存在。
@@ -356,7 +316,6 @@ smart_prt(smart_ptr&& other);	// 移动构造函数的声明
 * 纯右值是没有标识符，不可以取地址的表达式，一般也称为临时对象。**一个临时对象会在包含这个临时对象的完整表达式估值结束完成后、按生成顺序的逆序被销毁，除非有生命周期延长发生。**
 
   ```c++
-  
   #include <stdio.h>
   
   class shape {
@@ -414,5 +373,43 @@ smart_prt(smart_ptr&& other);	// 移动构造函数的声明
 
   调用函数，首先传递参数时构造临时对象`circle()`和`triangle()`，所以会调用它们的构造函数，然后打印`process_shape()`，返回时，构造了临时对象`result`，所以会调用`result`的构造函数和析构函数，然后`circle`对象和`triangle`对象生命周期结束需要被销毁，调用它们的析构函数，最后打印`something else`。
 
+# 现代C++实战30讲
 
+## <font color=yellow>堆、栈、RAII：C++如何管理资源</font>
+
+* 不管是否发生异常，类的析构函数都会得到执行
+* 当对象很大，或者对象的大小在编译时不能确定，这些情况下对象不能存储在堆上。
+
+系统资源有限，使用系统资源时必须遵循一个步骤：1）申请资源；2）使用资源；3）释放资源
+
+```c++
+#include <iostream> 
+
+using namespace std; 
+
+int main() 
+
+{ 
+    int *testArray = new int [10]; 
+    // Here, you can use the array 
+    delete [] testArray; 
+    testArray = NULL ; 
+    return 0; 
+}
+```
+
+如果程序很复杂的时候，需要为所有的new分配的内存delete，导致效率低下，代码臃肿。**更重要的是某一个操作发生了异常而导致释放资源的语句没有被调用，就会导致内存泄露，这是就可以使用RAII（Resource Acquisition Is Initialization）机制**
+
+由于系统的资源不具有自动释放的功能，而C++中的类具有自动调用析构函数的功能。**如果把资源用类进行封装起来，对资源操作都封装在类的内部，在析构函数中进行释放资源。当定义的局部变量的声明结束时，它的析构函数就会自动的被调用。因此，不需要程序员显式地调用释放资源的操作。**
+
+## <font color=yellow>自己动手，实现C++的智能指针</font>
+
+根据C++规则，如果提供了移动构造函数而没有提供拷贝构造函数，那么后者将被自动禁用。
+
+```c++
+smart_ptr(smart_ptr& other);	// 拷贝构造函数的声明
+smart_prt(smart_ptr&& other);	// 移动构造函数的声明
+```
+
+# 并发编程
 
