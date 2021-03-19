@@ -400,6 +400,72 @@ int main() {
 
 内存泄漏是指动态分配的内存没有释放，导致占用了有效内存。内存溢出指申请内存时内存不足。
 
+## C++中的四种cast转换
+
+c++中的四种cast转换是：`static_cast, dynamic_cast,const_cast,reinterpret_cast`
+
+顶层const：表示指针本身是一个常量
+
+底层const：表示指针或引用所指的对象是一个常量
+
+1. const_cast
+
+    将const变量转为非const，只能改变对象的底层const
+
+2. static_cast
+
+    static_cast和C语言风格的强制类型转换基本一样，由于没有运行时类型检查来保证转换的安全性，所以这类强制类型转换有安全隐患。**用于非多态类型的转换。**
+
+    * 用于类层次结构中基类和派生类之间指针或引用的转换。
+
+        进行向上转换（把派生类的指针或者引用转换为基类表示）是安全的。
+
+        进行向下转换（把基类的指针或者引用转换为派生类表示）时，由于没有运行时类型检查，所以时不安全的。
+
+    * 用于基本数据类型之间的转换，例如将int转换为double，int转换为enum
+
+    * 把任何类型的指针转为void指针
+
+3. dynamic_cast
+
+    **用于多态类型的转换。**
+
+    **转换的目标类型必须是类的指针或引用。用于将基类的指针或引用安全的转换为派生类的指针或引用。**
+
+    * dynamic_cast在运行期强制类型转换，运行时要进行类型检查，较安全
+    * 不能用于内置的基本数据类型的强制转换
+
+    涉及到类，**使用dynamic_cast进行转换的，基类中一定要有虚函数**，否则编译不通过。
+
+    对指针进行dynamic_cast，失败返回NULL，成功返回cast之后的对象的指针
+
+    对引用进行dynamic_cast，失败抛出一个bad_cast，成功返回正常cast之后的对象引用
+
+    对于向上转换（将派生类的指针或者引用转换为其基类类型）都是安全的。
+
+    对于向下转换有两种情况：
+
+    * 第一类，基类指针所指对象是派生类类型，这种转换是安全的
+    * 第二类，基类指针所指对象时基类类型，dynamic_cast在运行时做检查，转换失败，返回结果NULL。
+
+    ```c++
+    class Base{
+    public:
+        virtual dummy(){}
+    };
+    class Derived:public Base{};
+    
+    Base* b1 = new Derived;
+    Base* b2 = new Base;
+    
+    Derived* d1 = dynamic_cast<Derived>(b1);//成功
+    Deriver* d2 = dynamic_cast<Derived>(b2);//失败，返回NULL
+    ```
+
+4. reinterpret_cast
+
+    在指针之间转换，将一个类型的指针转换为另一个类型的指针。
+
 # 现代C++实战30讲
 
 ## <font color=yellow>堆、栈、RAII：C++如何管理资源</font>
