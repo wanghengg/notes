@@ -92,3 +92,12 @@ exec 比较特殊，它是一组函数：
 * 包含 v 的函数（execv, execvp, execve）以数组的形式接收参数；
 * 包含 l 的函数（execl, execlp, execle）以列表的形式接收参数；
 * 包含 e 的函数（execve, execle）以数组的形式接收环境变量。
+
+# 常用命令
+
+## awk命令
+
+# netstat命令
+
+# 常用系统调用
+
