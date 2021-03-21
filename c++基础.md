@@ -375,6 +375,8 @@ int main() {
 
 ## STL空间配置器allocator是怎么自动分配内存的
 
+
+
 ## 智能指针中的RAII
 
 **Resource Acquisition Is Initialization（资源获取就是初始化）是C++语言的一种管理资源、避免内存泄漏的方法。**利用的是C++构造的对象最终会被销毁的原则。**RAII的做法就是使用一个对象来管理需要动态分配的内存，在其构造时获取对应的资源，在对象生命期内控制对资源的访问，使之始终保持有效，在最后析构的时候释放构造时获取的资源。**在构造时获取资源，在析构时释放资源，避免了手动分配释放资源的麻烦，更重要的是即使程序在运行过程中异常终止，也能通过对象的析构函数自动释放分配的内存（如果用new、delete手动分配内存，那么由于异常会导致后面的内存释放语句没有被调用，导致了内存泄漏），避免了内存泄漏。RAII的常见应用就是智能指针。
@@ -411,6 +413,10 @@ c++中的四种cast转换是：`static_cast, dynamic_cast,const_cast,reinterpret
 1. const_cast
 
     将const变量转为非const，只能改变对象的底层const
+
+    <font color=red>顶层const和底层const</font>
+
+    * 顶层const指对象本身时const类型，底层const指的是对象的指针或者引用为const，引用只能是底层const修饰，指针既可以是顶层const又可以是底层const。
 
 2. static_cast
 
@@ -464,7 +470,84 @@ c++中的四种cast转换是：`static_cast, dynamic_cast,const_cast,reinterpret
 
 4. reinterpret_cast
 
-    在指针之间转换，将一个类型的指针转换为另一个类型的指针。
+    在指针之间转换，将一个类型的指针转换为另一个类型的指针。<font color=red>顾名思义，就是把内存里面的值重新解释，例如，在32位系统中，可以把指针解释为一个int整数</font>
+
+## 重载和重写的区别
+
+### 重载
+
+指同一作用域内被声明的几个具有不同参数列表（参数的类型、个数、顺序不同）的同名函数，根据参数列表确认调用哪个函数，重载不关心函数的返回类型。
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+
+class A
+{
+	void fun() {};
+	void fun(int i) {};
+	void fun(int i, int j) {};
+    int fun() {};	// 只有返回值不一样不是重载，编译器会报错
+};
+
+```
+
+### 重写（override）
+
+是指派生类中存在重新定义的函数。**其函数名，参数列表，返回值类型，所有都必须同基类中被重写的函数一致。**只有函数体不同（花括号内），派生类调用时会调用派生类的重写函数，不会调用被重写函数。**重写的基类中被重写的函数必须有virtual修饰。**
+
+```c++
+#include<bits/stdc++.h>
+
+using namespace std;
+
+class A
+{
+public:
+	virtual	void fun()
+	{
+		cout << "A";
+	}
+};
+class B :public A
+{
+public:
+	virtual void fun()	// 重写了基类的fun()
+	{
+		cout << "B";
+	}
+};
+int main(void)
+{
+	A* a = new B();
+	a->fun();//输出B
+}
+
+```
+
+### 重写和重载的区别
+
+1. 范围区别：重写和被重写的函数在不同的类中，重载和被重载的函数在同一作用域中。
+2. 参数区别：重写与被重写的函数参数列表一定相同，重载和被重载的函数参数列表一定不同。
+3. virtual的区别：重写的基类函数必须要有virtual修饰，重载函数和被重载函数可以被virtual修饰，也可以没有。
+
+## 函数对象
+
+> 函数对象：定义了操作符()的对象。该对象可以像函数一样调用，因此取名函数对象。<font color=red>可用于替换容器的默认排序方式，或者当做algorithm函数的谓词函数。
+
+```c++
+class A 
+{  
+public:  
+    int operator() ( int val )  
+    {  
+        return val > 0 ? val : -val;
+    }  
+};  
+```
+
+
 
 # 现代C++实战30讲
 
