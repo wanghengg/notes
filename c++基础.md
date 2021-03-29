@@ -547,6 +547,66 @@ public:
 };  
 ```
 
+## extern关键字
+
+1. **引用同一个文件中声明在后面的变量**
+
+   ```c++
+   #include<stdio.h>
+    
+   int func();
+    
+   int main()
+   {
+       func(); //1
+       printf("%d",num); //2
+       return 0;
+   }
+   
+   int num = 3;
+   
+   int func()
+   {
+       printf("%d\n",num);
+   }
+   ```
+
+2. **引用另一个文件中的变量或者函数**
+
+   `main.cpp`
+
+   ```c++
+   #include <iostream>
+   using namespace std;
+   
+   int main() {
+       extern int add(int, int);
+       extern void func();
+       extern int num;
+       cout << add(4, 5) << endl;
+       cout << num << endl;
+       func();
+       return 0;
+   }
+   
+   int num = 6;
+   
+   ```
+
+   `add.cpp`
+
+   ```c++
+   #include <iostream>
+   using namespace std;
+   int add(int a, int b) {
+       return a + b;
+   }
+   
+   void func() {
+       cout << "hello" << endl;
+   }
+   ```
+
 
 
 # 现代C++实战30讲
