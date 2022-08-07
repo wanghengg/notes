@@ -103,5 +103,6 @@ Pulsar使用pub-sub模式，生产者发送消息到topic，消费者订阅topic
 
 ### 订阅
 
-https://pulsar.apache.org/assets/images/pulsar-subscription-types-664733b68c7124129ca7d0e04dedcb96.png
+订阅是一个命名的配置规则，它决定了消息如何传递给消费者。 Pulsar 中提供了四种订阅类型：独占、共享、故障转移和 key_shared。这些类型如下图所示。
 
+![订阅模式](https://pulsar.apache.org/assets/images/pulsar-subscription-types-664733b68c7124129ca7d0e04dedcb96.png)
